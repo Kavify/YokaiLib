@@ -77,47 +77,49 @@ fun SettingsScreen(
             state = listState
         ) {
             categories.forEach { category ->
-                item(key = category.id) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        shape = MaterialTheme.shapes.medium,
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                    ) {
-                        Column(
+                if (category.fields.isNotEmpty()) {
+                    item(key = category.id) {
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                                .padding(vertical = 8.dp),
+                            shape = MaterialTheme.shapes.medium,
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
-                            category.title
-                                ?.takeIf { it.isNotBlank() }
-                                ?.let { title ->
-                                    Text(
-                                        text = title,
-                                        style = MaterialTheme.typography.titleLarge,
-                                        modifier = Modifier.padding(bottom = 8.dp)
-                                    )
-                                }
-
                             Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                category.fields.forEachIndexed { index, setting ->
-                                    val value = setting.field.field
-                                    (setting as SettingField<Any?>).component(value)
-                                    if (index != category.fields.lastIndex) {
-                                        HorizontalDivider(
-                                            color = MaterialTheme
-                                                .colorScheme
-                                                .onSurface
-                                                .copy(alpha = 0.12f)
+                                category.title
+                                    ?.takeIf { it.isNotBlank() }
+                                    ?.let { title ->
+                                        Text(
+                                            text = title,
+                                            style = MaterialTheme.typography.titleLarge,
+                                            modifier = Modifier.padding(bottom = 8.dp)
                                         )
+                                    }
+
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    category.fields.forEachIndexed { index, setting ->
+                                        val value = setting.field.field
+                                        (setting as SettingField<Any?>).component(value)
+                                        if (index != category.fields.lastIndex) {
+                                            HorizontalDivider(
+                                                color = MaterialTheme
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .copy(alpha = 0.12f)
+                                            )
+                                        }
                                     }
                                 }
                             }

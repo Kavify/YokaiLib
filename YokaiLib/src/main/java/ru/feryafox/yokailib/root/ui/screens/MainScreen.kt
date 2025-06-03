@@ -41,25 +41,22 @@ fun MainListScreen(
     var selectedContent by remember {
         mutableStateOf<@Composable () -> Unit>({
             Box(
-                modifier = Modifier
+                Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         imageVector = Icons.Default.Menu,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                        tint  = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                         modifier = Modifier
                             .size(64.dp)
                             .padding(bottom = 16.dp)
                     )
                     Text(
-                        text = "Выберите пункт меню",
+                        "Выберите пункт меню",
                         style = MaterialTheme.typography.headlineSmall.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         ),
@@ -73,8 +70,8 @@ fun MainListScreen(
     LaunchedEffect(selectedItemId, viewModel.categories) {
         if (selectedItemId.isNotBlank()) {
             viewModel.categories.forEach { category ->
-                category.items.find { it.id == selectedItemId }?.let { foundItem ->
-                    selectedContent = foundItem.content
+                category.items.find { it.id == selectedItemId }?.let { item ->
+                    selectedContent = { item.Content() }
                     return@LaunchedEffect
                 }
             }
@@ -101,7 +98,7 @@ fun MainListScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        selectedContent = item.content
+                                        selectedContent = { item.Content() }
                                         selectedItemId = item.id
                                         prefsManager.setString("last_screen", item.id)
                                         coroutineScope.launch { drawerState.close() }

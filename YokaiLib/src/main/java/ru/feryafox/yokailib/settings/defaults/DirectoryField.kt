@@ -9,8 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import ru.feryafox.yokailib.settings.base.OnUpdateBehavior
-import ru.feryafox.yokailib.settings.base.SettingField
+import ru.feryafox.yokailib.settings.base.*
 import ru.feryafox.yokailib.storages.base.StorageField
 
 class DirectoryField(

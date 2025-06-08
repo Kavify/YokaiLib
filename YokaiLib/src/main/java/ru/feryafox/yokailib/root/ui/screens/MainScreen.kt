@@ -22,7 +22,7 @@ import ru.feryafox.yokailib.root.ui.viewmodels.MainScreenViewModel
 import ru.feryafox.yokailib.preferences.PreferencesManagerFactory
 import ru.feryafox.yokailib.root.YOKAILIB_ID
 
-
+// TODO сделать возможность поддержи разных экранов
 @Composable
 fun MainListScreen(
     navController: NavHostController,

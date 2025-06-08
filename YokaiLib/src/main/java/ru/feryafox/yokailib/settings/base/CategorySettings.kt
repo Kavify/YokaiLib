@@ -1,5 +1,6 @@
 package ru.feryafox.yokailib.settings.base
 
+// TODO возможность поддержки нескольких языков
 abstract class CategorySettings(
     val id: String,
     val title: String?,

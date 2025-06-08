@@ -85,4 +85,5 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.androidx.runtime)
+    implementation(libs.encryptedprefs.ktx)
 }

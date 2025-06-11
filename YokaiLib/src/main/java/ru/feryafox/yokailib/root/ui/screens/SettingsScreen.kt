@@ -25,12 +25,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import ru.feryafox.yokailib.root.ui.viewmodels.SettingsViewModel
 import ru.feryafox.yokailib.settings.base.SettingField
+import ru.feryafox.yokailib.settings.bindables.BindableBooleanField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +46,19 @@ fun SettingsScreen(
     val saveAndExit: () -> Unit = {
         categories.forEach { it.save() }
         navController.popBackStack()
+    }
+
+    DisposableEffect(Unit) {
+        categories.forEach { category ->
+            category.fields.forEach { field ->
+                if (field is BindableBooleanField) {
+                    val currentValue = field.field.field
+                    field.bindScope.process(currentValue)
+                }
+            }
+        }
+
+        onDispose { }
     }
 
     BackHandler(onBack = saveAndExit)

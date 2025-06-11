@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import ru.feryafox.yokailib.settings.base.Disableable
 import ru.feryafox.yokailib.settings.base.OnUpdateBehavior
 import ru.feryafox.yokailib.settings.base.SettingField
 import ru.feryafox.yokailib.storages.base.StorageField
@@ -30,11 +31,16 @@ class StringField(
     override val field: StorageField<String>,
     override val isOnUpdateBehavior: OnUpdateBehavior,
     override val onUpdate: (String) -> Unit
-) : SettingField<String> {
+) : SettingField<String>, Disableable {
     private var _isUpdated = false
 
     override val isUpdated: Boolean
         get() = _isUpdated
+
+    private var _isDisabled by mutableStateOf(false)
+    override var isDisabled: Boolean
+        get() = _isDisabled
+        set(value) { _isDisabled = value }
 
     override val component: @Composable (String) -> Unit = { value ->
         var text by remember { mutableStateOf(value) }
@@ -54,6 +60,7 @@ class StringField(
                 singleLine = true,
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.fillMaxWidth(),
+                enabled = !_isDisabled,
                 trailingIcon = {
                     if (text.isNotEmpty()) {
                         IconButton(onClick = {

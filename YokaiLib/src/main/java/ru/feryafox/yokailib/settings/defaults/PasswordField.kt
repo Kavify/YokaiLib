@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import ru.feryafox.yokailib.settings.base.Disableable
 import ru.feryafox.yokailib.settings.base.OnUpdateBehavior
 import ru.feryafox.yokailib.settings.base.SettingField
 import ru.feryafox.yokailib.storages.base.StorageField
@@ -24,10 +25,15 @@ class PasswordField(
     override val field: StorageField<String>,
     override val isOnUpdateBehavior: OnUpdateBehavior = OnUpdateBehavior.ON_CHANGED,
     override val onUpdate: (String) -> Unit
-) : SettingField<String> {
+) : SettingField<String>, Disableable {
 
     private var _isUpdated = false
     override val isUpdated: Boolean get() = _isUpdated
+
+    private var _isDisabled by mutableStateOf(false)
+    override var isDisabled: Boolean
+        get() = _isDisabled
+        set(value) { _isDisabled = value }
 
     override val component: @Composable (String) -> Unit = { value ->
         var text by remember { mutableStateOf(value) }
@@ -50,6 +56,7 @@ class PasswordField(
                 else
                     PasswordVisualTransformation(),
                 singleLine = true,
+                enabled = !_isDisabled,
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
@@ -60,18 +67,33 @@ class PasswordField(
                                     text = ""
                                     field.field = ""
                                     _isUpdated = true
-                                }
+                                },
+                                enabled = !_isDisabled
                             ) {
-                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                Icon(
+                                    Icons.Default.Clear,
+                                    contentDescription = "Clear",
+                                    tint = if (_isDisabled)
+                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                                    else
+                                        LocalContentColor.current
+                                )
                             }
                         }
-                        IconButton(onClick = { isVisible = !isVisible }) {
+                        IconButton(
+                            onClick = { isVisible = !isVisible },
+                            enabled = !_isDisabled
+                        ) {
                             Icon(
                                 imageVector = if (isVisible)
                                     Icons.Default.VisibilityOff
                                 else
                                     Icons.Default.Visibility,
-                                contentDescription = if (isVisible) "Hide password" else "Show password"
+                                contentDescription = if (isVisible) "Hide password" else "Show password",
+                                tint = if (_isDisabled)
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                                else
+                                    LocalContentColor.current
                             )
                         }
                     }

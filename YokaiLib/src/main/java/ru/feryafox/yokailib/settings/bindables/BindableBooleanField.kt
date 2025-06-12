@@ -34,7 +34,7 @@ class BoolBindScope {
 
     fun process(isDisabled: Boolean) {
         disableableBindings.forEach { (disableable, whenDisable) ->
-            disableable.isDisabled = whenDisable && isDisabled
+            disableable.isDisabled = if (whenDisable) isDisabled else !isDisabled
         }
     }
 

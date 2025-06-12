@@ -3,6 +3,7 @@ package ru.feryafox.yokailib.settings.defaults
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import ru.feryafox.yokailib.settings.base.Disableable
@@ -48,7 +49,7 @@ open class BooleanField(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .weight(1f)
-                    .alignByBaseline()
+                    .align(Alignment.CenterVertically)
             )
 
             Switch(
@@ -60,7 +61,7 @@ open class BooleanField(
                     immediatelyUpdate(newValue)
                 },
                 enabled = !_isDisabled,
-                modifier = Modifier.alignByBaseline()
+                modifier = Modifier.align(Alignment.CenterVertically)
             )
         }
     }

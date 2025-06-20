@@ -18,8 +18,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import ru.feryafox.yokailib.settings.base.Disableable
 import ru.feryafox.yokailib.settings.base.OnUpdateBehavior
@@ -29,6 +33,7 @@ import ru.feryafox.yokailib.storages.base.StorageField
 class StringField(
     override val title: String = "",
     override val field: StorageField<String>,
+    override val required: Boolean = false,
     override val isOnUpdateBehavior: OnUpdateBehavior,
     override val onUpdate: (String) -> Unit
 ) : SettingField<String>, Disableable {
@@ -54,7 +59,19 @@ class StringField(
                     field.field = newText
                     _isUpdated = true
                 },
-                label = { Text(title) },
+                label = {
+                    Text(
+                        text = buildAnnotatedString {
+                            append(title)
+                            if (required) {
+                                append(" ")
+                                withStyle(style = SpanStyle(color = Color.Red)) {
+                                    append("*")
+                                }
+                            }
+                        }
+                    )
+                },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 singleLine = true,

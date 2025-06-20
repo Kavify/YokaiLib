@@ -5,6 +5,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import ru.feryafox.yokailib.settings.base.Disableable
 import ru.feryafox.yokailib.settings.base.ImmediatelyOnUpdate
@@ -15,6 +19,7 @@ import ru.feryafox.yokailib.storages.base.StorageField
 open class BooleanField(
     override val title: String = "",
     override val field: StorageField<Boolean>,
+    override val required: Boolean = false,
     override val isOnUpdateBehavior: OnUpdateBehavior = OnUpdateBehavior.ON_SAVED,
     override val immediatelyOnUpdate: (Boolean) -> Unit = {},
     override val onUpdate: (Boolean) -> Unit = {},
@@ -44,7 +49,15 @@ open class BooleanField(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = title,
+                text = buildAnnotatedString {
+                    append(title)
+                    if (required) {
+                        append(" ")
+                        withStyle(style = SpanStyle(color = Color.Red)) {
+                            append("*")
+                        }
+                    }
+                },
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .padding(start = 8.dp)

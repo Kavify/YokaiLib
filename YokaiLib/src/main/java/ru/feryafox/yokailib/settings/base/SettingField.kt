@@ -10,6 +10,7 @@ interface SettingField<T> {
     val onUpdate: (T) -> Unit
     val isOnUpdateBehavior: OnUpdateBehavior
     val isUpdated: Boolean
+    val required: Boolean
 }
 
 enum class OnUpdateBehavior {

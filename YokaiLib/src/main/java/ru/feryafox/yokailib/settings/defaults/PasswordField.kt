@@ -10,10 +10,14 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import ru.feryafox.yokailib.settings.base.Disableable
 import ru.feryafox.yokailib.settings.base.OnUpdateBehavior
@@ -23,6 +27,7 @@ import ru.feryafox.yokailib.storages.base.StorageField
 class PasswordField(
     override val title: String = "",
     override val field: StorageField<String>,
+    override val required: Boolean = false,
     override val isOnUpdateBehavior: OnUpdateBehavior = OnUpdateBehavior.ON_CHANGED,
     override val onUpdate: (String) -> Unit
 ) : SettingField<String>, Disableable {
@@ -48,7 +53,19 @@ class PasswordField(
                     field.field = newText
                     _isUpdated = true
                 },
-                label = { Text(title) },
+                label = {
+                    Text(
+                        text = buildAnnotatedString {
+                            append(title)
+                            if (required) {
+                                append(" ")
+                                withStyle(style = SpanStyle(color = Color.Red)) {
+                                    append("*")
+                                }
+                            }
+                        }
+                    )
+                },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 visualTransformation = if (isVisible)

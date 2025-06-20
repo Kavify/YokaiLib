@@ -8,6 +8,7 @@ import ru.feryafox.yokailib.storages.base.StorageField
 class BindableBooleanField(
     override val title: String,
     override val field: StorageField<Boolean>,
+    override val required: Boolean = false,
     override val isOnUpdateBehavior: OnUpdateBehavior,
     override val immediatelyOnUpdate: (Boolean) -> Unit = {},
     val bindScope: BoolBindScope,
@@ -19,6 +20,9 @@ class BindableBooleanField(
     immediatelyOnUpdate = immediatelyOnUpdate,
     onUpdate = onUpdate
 ) {
+    init {
+        bindScope.process(field.field)
+    }
     override fun immediatelyUpdate(value: Boolean) {
         super.immediatelyUpdate(value)
         bindScope.process(value)

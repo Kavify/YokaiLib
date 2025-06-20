@@ -7,7 +7,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import ru.feryafox.yokailib.settings.base.*
 import ru.feryafox.yokailib.storages.base.StorageField
@@ -15,6 +19,7 @@ import ru.feryafox.yokailib.storages.base.StorageField
 class DirectoryField(
     override val title: String,
     override val field: StorageField<String>,
+    override val required: Boolean = false,
     override val isOnUpdateBehavior: OnUpdateBehavior = OnUpdateBehavior.ON_CHANGED,
     private val texts: DirectoryFieldTexts = DirectoryFieldTexts.DEFAULT,
     override val onUpdate: (String) -> Unit
@@ -40,7 +45,18 @@ class DirectoryField(
         )
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text(text = title, style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = buildAnnotatedString {
+                    append(title)
+                    if (required) {
+                        append(" ")
+                        withStyle(SpanStyle(color = Color.Red)) {
+                            append("*")
+                        }
+                    }
+                },
+                style = MaterialTheme.typography.titleSmall
+            )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = text.ifBlank { texts.emptyText },

@@ -106,7 +106,7 @@ fun MainListScreen(
                                     inline         = true
                                 )
                             )
-                            return@DrawerSheet
+                            coroutine.launch { drawer.close() }
                         }
 
                         screenBody = { itm.Content() }

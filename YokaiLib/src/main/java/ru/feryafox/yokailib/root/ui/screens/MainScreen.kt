@@ -76,6 +76,7 @@ fun MainListScreen(
                     cat.items.find { it.id == selectedId }?.let { itm ->
                         screenBody = { itm.Content() }
                         showInvalidFieldsPopup(cat, itm)
+                        itm.onSelected()
                         return@LaunchedEffect
                     }
                 }

@@ -1,6 +1,7 @@
 package ru.feryafox.yokailib.root.ui.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,7 +13,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -32,21 +35,20 @@ fun MainListScreen(
     navController: NavHostController,
     viewModel: MainScreenViewModel = hiltViewModel(),
 ) {
-    /* ── state that doesn't depend on PopupHost ─────────────────────── */
-    val coroutine = rememberCoroutineScope()
-    val drawer    = rememberDrawerState(DrawerValue.Closed)
-    val prefs     = remember { PreferencesManagerFactory.create(YOKAILIB_ID) }
+    val coroutine  = rememberCoroutineScope()
+    val drawer     = rememberDrawerState(DrawerValue.Closed)
+    val prefs      = remember { PreferencesManagerFactory.create(YOKAILIB_ID) }
 
-    var selectedId  by remember { mutableStateOf(prefs.getString("last_screen", "")) }
-    var screenBody  by remember { mutableStateOf<@Composable () -> Unit>({ Placeholder() }) }
+    var selectedId by remember { mutableStateOf(prefs.getString("last_screen", "")) }
+    var screenBody by remember { mutableStateOf<@Composable () -> Unit>({ Placeholder() }) }
 
-    val errorTint = MaterialTheme.colorScheme.errorContainer
+    val errorTint  = MaterialTheme.colorScheme.errorContainer
 
-    /* ── provide PopupHost for everything below ─────────────────────── */
-    PopupHost {
-        val popupHost = LocalPopupHost.current   // safe to read
+    val popupState      = remember { mutableStateOf<PopupConfig?>(null) }
+    val popupController = remember { PopupHostController(popupState) }
 
-        /* helper: shows dialog if обязательные поля не заполнены */
+    CompositionLocalProvider(LocalPopupHost provides popupController) {
+
         fun showInvalidFieldsPopup(category: Category, item: CategoryItem) {
             val invalid = buildList {
                 addAll(item.settingsFields)
@@ -54,7 +56,7 @@ fun MainListScreen(
             }.filter { it.needAttention(true) }
 
             if (invalid.isNotEmpty()) {
-                popupHost.show(
+                popupController.show(
                     PopupConfig(
                         title          = "Требуются данные",
                         message        = "Заполните следующие поля",
@@ -68,7 +70,6 @@ fun MainListScreen(
             }
         }
 
-        /* восстановление последнего экрана при старте */
         LaunchedEffect(selectedId, viewModel.categories) {
             if (selectedId.isNotBlank()) {
                 viewModel.categories.forEach { cat ->
@@ -86,28 +87,9 @@ fun MainListScreen(
             drawerContent = {
                 DrawerSheet(
                     vm        = viewModel,
-                    popupHost = popupHost,
                     errorTint = errorTint,
                     onSelect  = { cat, itm ->
-                        val invalid = buildList {
-                            addAll(itm.settingsFields)
-                            addAll(cat.settingsFields)
-                        }.filter { it.needAttention(true) }
-
-                        if (invalid.isNotEmpty()) {
-                            popupHost.show(
-                                PopupConfig(
-                                    title          = "Требуются данные",
-                                    message        = "Заполните следующие поля",
-                                    tint           = errorTint,
-                                    dismissible    = false,
-                                    dimBackground  = true,
-                                    requiredFields = invalid,
-                                    inline         = true
-                                )
-                            )
-                            coroutine.launch { drawer.close() }
-                        }
+                        showInvalidFieldsPopup(cat, itm)
 
                         screenBody = { itm.Content() }
                         selectedId = itm.id
@@ -122,17 +104,22 @@ fun MainListScreen(
                 )
             }
         ) {
-            Box(Modifier.fillMaxSize()) { screenBody() }
+
+            Box(Modifier.fillMaxSize()) {
+
+                screenBody()
+
+                popupState.value?.let { cfg ->
+                    InlinePopupOverlay(cfg) { popupController.dismiss() }
+                }
+            }
         }
     }
 }
 
-/* ───────────────────────────────────────────────────────────────────── */
-
 @Composable
 private fun DrawerSheet(
     vm: MainScreenViewModel,
-    popupHost: PopupHostController,
     errorTint: Color,
     onSelect: (Category, CategoryItem) -> Unit,
     onSettings: () -> Unit
@@ -162,7 +149,6 @@ private fun DrawerSheet(
             }
         }
 
-        /* пункт «Настройки» */
         HorizontalDivider()
         Row(
             Modifier
@@ -178,12 +164,49 @@ private fun DrawerSheet(
 }
 
 @Composable
+private fun InlinePopupOverlay(
+    cfg: PopupConfig,
+    onDismiss: () -> Unit
+) {
+    val card: @Composable () -> Unit =
+        { DefaultPopupCard(config = cfg) { onDismiss() } }
+
+    Box(Modifier.fillMaxSize()) {
+
+        if (cfg.dimBackground) {
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .alpha(0.45f)
+                    .background(cfg.tint.takeOrElse { Color.Black })
+            )
+        }
+
+        Box(
+            Modifier
+                .padding(top = 32.dp)
+                .align(Alignment.TopCenter)
+        ) { card() }
+    }
+
+    if (cfg.requiredFields.isNotEmpty() && !cfg.dismissible) {
+        val stillInvalid by remember {
+            derivedStateOf {
+                cfg.requiredFields.any { it.needAttention(cfg.skipDisabled) }
+            }
+        }
+        if (!stillInvalid) onDismiss()
+    }
+}
+
+
+@Composable
 private fun Placeholder() {
     Box(Modifier.fillMaxSize(), Alignment.Center) {
         Icon(
             imageVector = Icons.Default.Menu,
             contentDescription = null,
-            tint  = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+            tint     = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
             modifier = Modifier.size(64.dp)
         )
     }

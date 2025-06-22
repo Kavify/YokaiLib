@@ -116,7 +116,6 @@ fun PopupHost(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .zIndex(-1f)
                     ) {
                         if (cfg.dimBackground) {
                             Box(

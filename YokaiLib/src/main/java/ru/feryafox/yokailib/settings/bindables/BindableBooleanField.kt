@@ -36,6 +36,10 @@ class BoolBindScope {
         disableableBindings[this] = isDisabled
     }
 
+    infix fun Disableable.enabledWhen(isEnabled: Boolean) {
+        disableableBindings[this] = !isEnabled
+    }
+
     fun process(isDisabled: Boolean) {
         disableableBindings.forEach { (disableable, whenDisable) ->
             disableable.isDisabled = if (whenDisable) isDisabled else !isDisabled

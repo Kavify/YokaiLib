@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,8 +48,19 @@ internal fun DefaultPopupCard(
                 Arrangement.SpaceBetween,
                 Alignment.CenterVertically
             ) {
-                config.title?.let {
-                    Text(it, style = MaterialTheme.typography.titleMedium)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    config.title?.let {
+                        Text(it, style = MaterialTheme.typography.titleMedium)
+                    }
+                    if (config.isLoading) {
+                        Spacer(Modifier.width(12.dp))
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp
+                        )
+                    }
                 }
                 if (config.dismissible) {
                     IconButton(onClick = onDismiss) {

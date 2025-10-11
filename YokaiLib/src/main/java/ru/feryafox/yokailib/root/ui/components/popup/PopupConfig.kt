@@ -3,7 +3,6 @@ package ru.feryafox.yokailib.root.ui.components.popup
 import androidx.compose.foundation.background
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
@@ -16,8 +15,7 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.dp
 import ru.feryafox.yokailib.settings.base.Disableable
 import ru.feryafox.yokailib.settings.base.SettingField
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.zIndex
+import ru.feryafox.yokailib.utils.ValidationResult
 
 /**
  * Конфигурация всплывающего уведомления, которое отображается поверх текущего
@@ -79,7 +77,11 @@ data class PopupConfig(
     val skipDisabled: Boolean = true,
     /** `true` — уведомление рисуется внутри Compose-иерархии (под Drawer).
      *  `false` — используется Android Popup и отображается поверх всего UI. */
-    val inline: Boolean = true
+    val inline: Boolean = true,
+    /** Результат валидации для автоматического закрытия popup при успехе */
+    val validationResult: ValidationResult? = null,
+    /** Показывать ли индикатор загрузки (для асинхронной валидации) */
+    val isLoading: Boolean = false
 )
 
 class PopupHostController internal constructor(
@@ -159,13 +161,18 @@ fun PopupHost(
                     }
                 }
 
-                if (cfg.requiredFields.isNotEmpty() && !cfg.dismissible) {
-                    val stillInvalid by remember {
+                if (!cfg.dismissible) {
+                    val shouldDismiss by remember {
                         derivedStateOf {
-                            cfg.requiredFields.any { it.needAttention(cfg.skipDisabled) }
+                            when {
+                                cfg.validationResult != null -> cfg.validationResult.isValid
+                                cfg.requiredFields.isNotEmpty() ->
+                                    !cfg.requiredFields.any { it.needAttention(cfg.skipDisabled) }
+                                else -> false
+                            }
                         }
                     }
-                    if (!stillInvalid) controller.dismiss()
+                    if (shouldDismiss) controller.dismiss()
                 }
             }
         }

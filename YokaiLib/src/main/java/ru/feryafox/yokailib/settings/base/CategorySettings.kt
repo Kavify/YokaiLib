@@ -4,9 +4,11 @@ package ru.feryafox.yokailib.settings.base
 abstract class CategorySettings(
     val id: String,
     val title: String?,
-    val fields: List<SettingField<*>>,
     val onSaved: () -> Unit = {}
 ) {
+
+    abstract val fields: List<SettingField<*>>
+
     @Suppress("UNCHECKED_CAST")
     fun save() {
         fields.forEach {

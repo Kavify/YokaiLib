@@ -45,7 +45,6 @@ class BoolBindScope {
             disableable.isDisabled = if (whenDisable) isDisabled else !isDisabled
         }
     }
-
 }
 
 fun bind(init: BoolBindScope.() -> Unit): BoolBindScope {
